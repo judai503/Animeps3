@@ -1,8 +1,8 @@
 {
-  "description": "Plugin para reproducir enlaces directos de video y audio en Movian",
-  "author": "Direct Link Player",
+  "description": "anime en tu Play 3 nunca ha sido más fácil",
+  "author": "El tío Judai",
   "homepage": "",
-  "title": "Direct Link Player",
+  "title": "Animeps3",
   "synopsis": "Reproduce enlaces directos de medios (MP4, MKV, MP3, M4A, etc.)",
   "version": "1.0",
   "file": "main.js",
