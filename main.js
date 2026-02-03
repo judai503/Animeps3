@@ -7,7 +7,7 @@ var popup = require('native/popup');
 var store = require('movian/store');
 var plugin = JSON.parse(Plugin.manifest);
 var logo = Plugin.path + 'logo.png';
-var background = Plugin.path + 'bg.png';
+var background = Plugin.path + 'bg.jpg';
 
 RichText = function(x) {
   this.str = x.toString();
