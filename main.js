@@ -1,210 +1,98 @@
 var page = require('showtime/page');
 var service = require('showtime/service');
-var settings = require('showtime/settings');
-var http = require('showtime/http');
-var string = require('native/string');
-var popup = require('native/popup');
-var store = require('movian/store');
+
 var plugin = JSON.parse(Plugin.manifest);
+
 var logo = Plugin.path + 'logo.png';
 var background = Plugin.path + 'bg.jpg';
 
-RichText = function(x) {
-  this.str = x.toString();
-};
+/* ========= CONFIG ========= */
+var ANIME_NAME = 'Tate no Yuusha no Nariagari – to aru Ichinichi';
 
-RichText.prototype.toRichString = function(x) {
-  return this.str;
-};
+/* ⚠️ CAMBIA SOLO ESTA PARTE */
+var EPISODES = [
+  { num: 1, url: 'https://TU_LINK_EP01.mp4' },
+  { num: 2, url: 'https://www.dropbox.com/scl/fi/r8fv810uxz0d4ae1497jo/AnimesBlack-Tate-no-Yuusha-no-Nariagari-02.mp4?dl=1' },
+  { num: 3, url: 'https://TU_LINK_EP03.mp4' },
+  { num: 4, url: 'https://TU_LINK_EP04.mp4' },
+  { num: 5, url: 'https://TU_LINK_EP05.mp4' },
+  { num: 6, url: 'https://TU_LINK_EP06.mp4' },
+  { num: 7, url: 'https://TU_LINK_EP07.mp4' },
+  { num: 8, url: 'https://TU_LINK_EP08.mp4' },
+  { num: 9, url: 'https://TU_LINK_EP09.mp4' },
+  { num: 10, url: 'https://TU_LINK_EP10.mp4' },
+  { num: 11, url: 'https://TU_LINK_EP11.mp4' },
+  { num: 12, url: 'https://TU_LINK_EP12.mp4' },
+  { num: 13, url: 'https://TU_LINK_EP13.mp4' },
+  { num: 14, url: 'https://TU_LINK_EP14.mp4' },
+  { num: 15, url: 'https://TU_LINK_EP15.mp4' },
+  { num: 16, url: 'https://TU_LINK_EP16.mp4' },
+  { num: 17, url: 'https://TU_LINK_EP17.mp4' },
+  { num: 18, url: 'https://TU_LINK_EP18.mp4' },
+  { num: 19, url: 'https://TU_LINK_EP19.mp4' },
+  { num: 20, url: 'https://TU_LINK_EP20.mp4' },
+  { num: 21, url: 'https://TU_LINK_EP21.mp4' },
+  { num: 22, url: 'https://TU_LINK_EP22.mp4' },
+  { num: 23, url: 'https://TU_LINK_EP23.mp4' },
+  { num: 24, url: 'https://TU_LINK_EP24.mp4' }
+];
 
-function setPageHeader(page, title) {
-  if (page.metadata) {
-    page.metadata.title = new RichText(decodeURIComponent(title));
-    page.metadata.logo = logo;
-    page.metadata.background = background;
-  }
-  page.type = 'directory';
-  page.contents = 'items';
-  page.loading = false;
-}
-
-var orange = 'FFA500';
-var blue = '6699CC';
-
-function coloredStr(str, color) {
-  return '<font color="' + color + '">' + str + '</font>';
-}
-
+/* ========= SERVICIO ========= */
 service.create(plugin.title, plugin.id + ':start', 'video', true, logo);
 
-var linkStore = store.create('directlinks');
-if (!linkStore.list) {
-  linkStore.list = '[]';
-}
-
-settings.globalSettings(plugin.id, plugin.title, logo, plugin.synopsis);
-settings.createAction('clearLinks', 'Clear all links', function() {
-  linkStore.list = '[]';
-  popup.notify('All links have been removed', 2);
-});
-
-function getLinks() {
-  try {
-    return JSON.parse(linkStore.list);
-  } catch(e) {
-    return [];
-  }
-}
-
-function saveLink(url, title, icon) {
-  var links = getLinks();
-  
-  for (var i = 0; i < links.length; i++) {
-    if (links[i].url === url) {
-      popup.notify('This link already exists', 2);
-      return;
-    }
-  }
-  
-  links.push({
-    url: url,
-    title: title,
-    icon: icon || logo,
-    date: Date.now()
-  });
-  
-  linkStore.list = JSON.stringify(links);
-}
-
-function removeLink(pos) {
-  var links = getLinks();
-  links.splice(pos, 1);
-  linkStore.list = JSON.stringify(links);
-}
-
-function addOptionForRemovingLink(page, item, title, pos) {
-  item.addOptAction('Remove "' + title + '" from list', function() {
-    popup.notify('"' + title + '" has been removed', 2);
-    removeLink(pos);
-    page.redirect(plugin.id + ':start');
-  });
-}
-
+/* ========= MENÚ PRINCIPAL ========= */
 new page.Route(plugin.id + ':start', function(page) {
-  setPageHeader(page, plugin.title);
-
-  page.appendItem('', 'separator', {
-    title: 'Add Link'
-  });
-
-  page.appendItem(plugin.id + ':addLink', 'item', {
-    title: 'Add new link',
-    icon: logo,
-    description: 'Enter a direct link (MP4, MKV, MP3, M4A, etc.)'
-  });
-
-  page.appendItem('', 'separator', {
-    title: 'My Links'
-  });
-
-  var links = getLinks();
-  
-  if (links.length > 0) {
-    for (var i = links.length - 1; i >= 0; i--) {
-      var link = links[i];
-      var date = new Date(link.date);
-      
-      var item = page.appendItem(plugin.id + ':play:' + escape(link.url) + ':' + escape(link.title) + ':' + escape(link.icon || logo), 'video', {
-        title: link.title,
-        icon: link.icon || logo,
-        description: new RichText(
-          coloredStr('Link: ', orange) + link.url + 
-          '<br>' + coloredStr('Added: ', blue) + date.toLocaleString()
-        )
-      });
-      
-      addOptionForRemovingLink(page, item, link.title, i);
-    }
-    
-    page.metadata.title = new RichText(plugin.title + ' (' + links.length + ')');
-  } else {
-    page.appendItem('', 'label', {
-      title: 'No saved links'
-    });
-    
-    page.appendItem('', 'label', {
-      title: 'Press "Add new link" to get started'
-    });
-  }
-
-  page.loading = false;
-});
-
-new page.Route(plugin.id + ':addLink', function(page) {
   page.type = 'directory';
   page.contents = 'items';
+
+  page.metadata.title = plugin.title;
+  page.metadata.logo = logo;
   page.metadata.background = background;
+
+  page.appendItem(plugin.id + ':anime:tate', 'directory', {
+    title: ANIME_NAME,
+    icon: logo
+  });
+
   page.loading = false;
-  
-  var urlInput = popup.textDialog('Enter media URL:\n(must start with http:// or https://)', true, true);
-  
-  if (urlInput.rejected || !urlInput.input || urlInput.input.length === 0) {
-    popup.notify('Operation cancelled', 2);
-    page.redirect(plugin.id + ':start');
-    return;
-  }
-  
-  var url = urlInput.input;
-  
-  if (url.indexOf('http://') !== 0 && url.indexOf('https://') !== 0) {
-    popup.notify('Invalid URL. Must start with http:// or https://', 3);
-    page.redirect(plugin.id + ':start');
-    return;
-  }
-  
-  var titleInput = popup.textDialog('Media title (optional):', true, true);
-  
-  var title;
-  if (titleInput.rejected || !titleInput.input || titleInput.input.length === 0) {
-    var urlParts = url.split('/');
-    var fileName = urlParts[urlParts.length - 1].split('?')[0];
-    title = decodeURIComponent(fileName) || 'Direct media';
-  } else {
-    title = titleInput.input;
-  }
-  
-  var iconInput = popup.textDialog('Cover image URL (optional):', true, true);
-  
-  var icon = logo;
-  if (!iconInput.rejected && iconInput.input && iconInput.input.length > 0) {
-    if (iconInput.input.indexOf('http://') === 0 || iconInput.input.indexOf('https://') === 0) {
-      icon = iconInput.input;
-    }
-  }
-  
-  saveLink(url, title, icon);
-  
-  popup.notify('"' + title + '" added successfully', 2);
-  
-  page.redirect(plugin.id + ':start');
 });
 
-new page.Route(plugin.id + ':play:(.*):(.*):(.*)', function(page, encodedUrl, encodedTitle, encodedIcon) {
-  var url = unescape(encodedUrl);
-  var title = unescape(encodedTitle);
-  var icon = unescape(encodedIcon);
-  
+/* ========= LISTA DE EPISODIOS ========= */
+new page.Route(plugin.id + ':anime:tate', function(page) {
+  page.type = 'directory';
+  page.contents = 'items';
+
+  page.metadata.title = ANIME_NAME;
+  page.metadata.background = background;
+
+  EPISODES.forEach(function(ep) {
+    page.appendItem(
+      plugin.id + ':play:' + ep.num,
+      'video',
+      {
+        title: 'Capítulo ' + ep.num,
+        icon: logo
+      }
+    );
+  });
+
+  page.loading = false;
+});
+
+/* ========= REPRODUCTOR ========= */
+new page.Route(plugin.id + ':play:(.*)', function(page, epNum) {
+  var ep = EPISODES[epNum - 1];
+
   page.type = 'video';
   page.source = 'videoparams:' + JSON.stringify({
-    title: title,
-    icon: icon,
-    canonicalUrl: plugin.id + ':play:' + encodedUrl + ':' + encodedTitle + ':' + encodedIcon,
+    title: ANIME_NAME + ' - Capítulo ' + ep.num,
+    icon: logo,
     sources: [{
-      url: url
+      url: ep.url
     }],
     no_fs_scan: true,
     no_subtitle_scan: true
   });
-  
+
   page.loading = false;
 });
