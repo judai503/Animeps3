@@ -1,0 +1,14 @@
+{
+  "description": "Plugin para reproducir enlaces directos de video y audio en Movian",
+  "author": "Direct Link Player",
+  "homepage": "",
+  "title": "Direct Link Player",
+  "synopsis": "Reproduce enlaces directos de medios (MP4, MKV, MP3, M4A, etc.)",
+  "version": "1.0",
+  "file": "main.js",
+  "m7Version": "7.0.0",
+  "type": "ecmascript",
+  "id": "sirectlinkplayer",
+  "icon": "logo.png",
+  "category": "video"
+}
