@@ -1,14 +1,10 @@
 {
-  "description": "anime en tu Play 3 nunca ha sido más fácil",
-  "author": "El tío Judai",
-  "homepage": "",
-  "title": "Animeps3",
-  "synopsis": "Reproduce enlaces directos de medios (MP4, MKV, MP3, M4A, etc.)",
+  "id": "com.animeps3.plugin",
+  "title": "AnimePS3",
   "version": "1.0",
-  "file": "main.js",
-  "m7Version": "7.0.0",
   "type": "ecmascript",
-  "id": "sirectlinkplayer",
+  "file": "main.js",
   "icon": "logo.png",
-  "category": "video"
+  "category": "video",
+  "synopsis": "Anime para Movian en PS3"
 }
