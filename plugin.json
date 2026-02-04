@@ -1,6 +1,13 @@
 {
-  "id": "animeps3",
+  "id": "com.animeps3.plugin",
   "title": "AnimePS3",
-  "version": "1.0",
-  "type": "video"
+  "description": "Plugin de anime para Movian (Proyecto Beta)",
+  "synopsis": "Reproduce anime alojado en enlaces directos como Dropbox.",
+  "author": "Judai503",
+  "version": "1.0.0",
+  "file": "main.js",
+  "icon": "logo.png",
+  "category": "video",
+  "type": "ecmascript",
+  "m7Version": "7.0.0"
 }
